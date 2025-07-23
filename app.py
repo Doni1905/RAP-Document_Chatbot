@@ -29,6 +29,10 @@ if uploaded_files:
         docs = load_documents(config.DATA_DIR)
         chunks = chunk_documents(docs, config.CHUNK_SIZE, config.CHUNK_OVERLAP)
         print("[DEBUG] First 3 chunks after chunking:", chunks[:3])
+        # Debug: Print all DOCX chunk texts and metadata
+        for chunk in chunks:
+            if chunk["filename"].lower().endswith(".docx"):
+                print(f"[DOCX CHUNK] File: {chunk['filename']}, Chunk ID: {chunk['chunk_id']}, Source: {chunk.get('source_ref')}, Text: {chunk['chunk_text'][:200]}...")
         embed_chunks(chunks)
     st.success("Documents ingested and indexed!")
 
