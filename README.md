@@ -247,4 +247,4 @@ streamlit run app.py
 3. Start Ollama and your app.
 4. Use your chatbot—Mistral 7B will answer your questions!
 
-Let me know if you hit any issues or want to verify your setup! 
+Let me know if you hit any issues or want to verify your setup! # RAP-Document_Chatbot
