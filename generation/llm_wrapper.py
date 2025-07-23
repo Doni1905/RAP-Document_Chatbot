@@ -27,7 +27,15 @@ def get_llm():
 def generate_answer(user_query, context_chunks):
     context = "\n---\n".join([c["chunk_text"] for c in context_chunks])
     prompt = PROMPT_TEMPLATE.format(context=context, question=user_query)
-    sources = [{"filename": c["filename"], "page": c["page"], "chunk_id": c["chunk_id"]} for c in context_chunks]
+    # Debug: print context_chunks
+    print("[DEBUG] context_chunks:", context_chunks)
+    sources = [{
+        "filename": c.get("filename"),
+        "chunk_id": c.get("chunk_id"),
+        "source_ref": c.get("source_ref")
+    } for c in context_chunks]
+    # Debug: print sources
+    print("[DEBUG] sources:", sources)
     if config.LLM_BACKEND == "ollama":
         # Use Ollama server
         response = requests.post(

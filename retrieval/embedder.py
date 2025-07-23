@@ -21,4 +21,5 @@ def embed_chunks(chunks):
     texts = [c["chunk_text"] for c in chunks]
     embeddings = model.encode(texts, show_progress_bar=True, normalize_embeddings=True)
     vectorstore = QdrantVectorStore()
+    vectorstore.reset_collection()
     vectorstore.add_embeddings(embeddings, chunks) 

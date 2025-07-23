@@ -8,11 +8,15 @@ import numpy as np
 class QdrantVectorStore:
     def __init__(self):
         self.client = QdrantClient(host=config.QDRANT_HOST, port=config.QDRANT_PORT)
-        if config.QDRANT_COLLECTION not in [c.name for c in self.client.get_collections().collections]:
-            self.client.recreate_collection(
-                collection_name=config.QDRANT_COLLECTION,
-                vectors_config=VectorParams(size=config.EMBEDDING_DIM, distance=Distance.COSINE)
-            )
+
+    def reset_collection(self):
+        collections = [c.name for c in self.client.get_collections().collections]
+        if config.QDRANT_COLLECTION in collections:
+            self.client.delete_collection(collection_name=config.QDRANT_COLLECTION)
+        self.client.recreate_collection(
+            collection_name=config.QDRANT_COLLECTION,
+            vectors_config=VectorParams(size=config.EMBEDDING_DIM, distance=Distance.COSINE)
+        )
 
     def add_embeddings(self, embeddings, chunks):
         points = []
@@ -22,9 +26,10 @@ class QdrantVectorStore:
                 vector=np.array(emb, dtype=np.float32),
                 payload={
                     "filename": meta["filename"],
-                    "page": meta["page"],
+                    "page": meta.get("page"),  # Will be None for DOCX
                     "chunk_id": meta["chunk_id"],
-                    "chunk_text": meta["chunk_text"]
+                    "chunk_text": meta["chunk_text"],
+                    "source_ref": meta.get("source_ref")
                 }
             ))
         self.client.upsert(collection_name=config.QDRANT_COLLECTION, points=points)
@@ -37,13 +42,14 @@ class QdrantVectorStore:
             query_vector=query_emb,
             limit=top_k
         )
+        print("[DEBUG] Qdrant search results:", results)
         context_chunks = []
         for r in results:
             payload = r.payload
             context_chunks.append({
                 "chunk_text": payload["chunk_text"],
                 "filename": payload["filename"],
-                "page": payload["page"],
-                "chunk_id": payload["chunk_id"]
+                "chunk_id": payload["chunk_id"],
+                "source_ref": payload.get("source_ref")
             })
         return context_chunks 
