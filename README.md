@@ -248,3 +248,4 @@ streamlit run app.py
 4. Use your chatbot—Mistral 7B will answer your questions!
 
 Let me know if you hit any issues or want to verify your setup! # RAP-Document_Chatbot
+# RAP-Document_Chatbot
