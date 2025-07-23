@@ -1,0 +1,14 @@
+streamlit
+qdrant-client
+ctransformers
+sentence-transformers
+transformers
+pypdf
+python-docx
+numpy
+scipy
+tqdm
+loguru
+PyYAML
+psutil
+requests 
