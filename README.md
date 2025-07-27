@@ -56,14 +56,6 @@ All project outputs, screenshots, and sample results are available at the follow
 
 ---
 
-## 🔗 Project Output Drive Link
-
-All project outputs, including screenshots, sample runs, and documentation, are available at:
-
-[Google Drive Output Folder](https://drive.google.com/your-output-link)
-
----
-
 ## 🚀 Quick Start
 
 ### 1. Clone & Setup
