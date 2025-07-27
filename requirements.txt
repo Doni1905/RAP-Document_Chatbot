@@ -11,4 +11,5 @@ tqdm
 loguru
 PyYAML
 psutil
-requests 
+requests
+streamlit-lottie 

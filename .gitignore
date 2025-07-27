@@ -1,8 +1,39 @@
 # Ignore data and model files
-data/
-models/
-docs_index/
-wheels/
+/data/
+/models/
+/docs_index/
+/wheels/
 __pycache__/
 *.pyc
-.DS_Store 
+.DS_Store
+
+# Ignore virtual environments
+.venv/
+venv/
+ENV/
+
+# Ignore test and backup files
+*.bak
+*.backup
+*.swp
+*~
+
+# Ignore log files
+*.log
+
+# Ignore editor/project files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Ignore shell scripts (if not needed in repo)
+cleanup.sh
+setup_complete.sh
+start_services.sh
+download_wheels.sh
+
+# Ignore sample and temp files
+sample_document.txt
+test_all.py
+FIXES_SUMMARY.md 

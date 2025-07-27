@@ -32,25 +32,31 @@ def generate_answer(user_query, context_chunks):
     sources = [{
         "filename": c.get("filename"),
         "chunk_id": c.get("chunk_id"),
+        "page": c.get("page"),
+        "total_pages": c.get("total_pages"),
         "source_ref": c.get("source_ref")
     } for c in context_chunks]
     # Debug: print sources
     print("[DEBUG] sources:", sources)
     if config.LLM_BACKEND == "ollama":
         # Use Ollama server
-        response = requests.post(
-            "http://localhost:11434/api/generate",
-            json={
-                "model": config.OLLAMA_MODEL,
-                "prompt": prompt,
-                "stream": False,
-                "options": {"num_predict": 128}
-            },
-            timeout=120
-        )
-        response.raise_for_status()
-        result = response.json()
-        output = result.get("response", "")
+        try:
+            response = requests.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": config.OLLAMA_MODEL,
+                    "prompt": prompt,
+                    "stream": False,
+                    "options": {"num_predict": 128}
+                },
+                timeout=120
+            )
+            response.raise_for_status()
+            result = response.json()
+            output = result.get("response", "")
+        except requests.exceptions.RequestException as e:
+            print(f"[ERROR] Ollama API call failed: {e}")
+            output = "I apologize, but I'm unable to generate a response at the moment. Please check if Ollama is running and the model is available."
     else:
         llm = get_llm()
         output = llm(prompt, max_new_tokens=128, stop=["\n"])

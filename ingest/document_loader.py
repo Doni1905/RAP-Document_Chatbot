@@ -1,7 +1,8 @@
 import os
-from typing import List, Dict
+from typing import List, Dict, Union
 from pypdf import PdfReader
 from docx import Document
+import io
 
 def load_documents(data_dir: str) -> List[Dict]:
     docs = []
@@ -31,7 +32,53 @@ def load_documents(data_dir: str) -> List[Dict]:
     return docs
 
 
-def chunk_documents(docs: List[Dict], chunk_size: int, overlap: int) -> List[Dict]:
+def load_uploaded_documents(uploaded_files: List) -> List[Dict]:
+    """
+    Load documents from Streamlit uploaded files
+    """
+    docs = []
+    for uploaded_file in uploaded_files:
+        fname = uploaded_file.name
+        try:
+            if fname.lower().endswith(".pdf"):
+                # Read PDF from bytes
+                pdf_bytes = uploaded_file.read()
+                reader = PdfReader(io.BytesIO(pdf_bytes))
+                total_pages = len(reader.pages)
+                for i, page in enumerate(reader.pages):
+                    text = page.extract_text()
+                    if text:
+                        docs.append({
+                            "text": text,
+                            "filename": fname,
+                            "page": i + 1,
+                            "total_pages": total_pages
+                        })
+            elif fname.lower().endswith(".docx"):
+                # Read DOCX from bytes
+                docx_bytes = uploaded_file.read()
+                doc = Document(io.BytesIO(docx_bytes))
+                paragraphs = [para.text.strip() for para in doc.paragraphs if para.text.strip()]
+                docs.append({
+                    "text": "\n".join(paragraphs),
+                    "filename": fname,
+                    "paragraphs": paragraphs
+                })
+            elif fname.lower().endswith(".txt"):
+                # Read TXT from bytes
+                txt_content = uploaded_file.read().decode('utf-8')
+                docs.append({
+                    "text": txt_content,
+                    "filename": fname,
+                    "paragraphs": txt_content.split('\n')
+                })
+        except Exception as e:
+            print(f"Error processing {fname}: {str(e)}")
+            continue
+    return docs
+
+
+def chunk_documents(docs: List[Dict], chunk_size: int = 500, overlap: int = 50) -> List[Dict]:
     chunks = []
     global_chunk_id = 0
     for doc in docs:
@@ -57,8 +104,9 @@ def chunk_documents(docs: List[Dict], chunk_size: int, overlap: int) -> List[Dic
                     "chunk_text": chunk_text,
                     "filename": doc["filename"],
                     "chunk_id": global_chunk_id,
+                    "page": global_chunk_id + 1,  # Add this line for DOCX/TXT
                     "source_ref": source_ref
-                    # Do NOT set 'page' for DOCX
+                    # Do NOT set 'total_pages' for DOCX
                 })
                 global_chunk_id += 1
                 start += chunk_size - overlap

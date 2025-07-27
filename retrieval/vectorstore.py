@@ -27,6 +27,7 @@ class QdrantVectorStore:
                 payload={
                     "filename": meta["filename"],
                     "page": meta.get("page"),  # Will be None for DOCX
+                    "total_pages": meta.get("total_pages"),  # Will be None for DOCX
                     "chunk_id": meta["chunk_id"],
                     "chunk_text": meta["chunk_text"],
                     "source_ref": meta.get("source_ref")
@@ -35,7 +36,9 @@ class QdrantVectorStore:
         self.client.upsert(collection_name=config.QDRANT_COLLECTION, points=points)
 
     def search(self, query, top_k=3):
-        embedder = SentenceTransformer(config.EMBEDDING_MODEL_NAME)
+        # Use the same embedder as in embedder.py for consistency
+        from retrieval.embedder import get_embedder
+        embedder = get_embedder()
         query_emb = embedder.encode([query], normalize_embeddings=True)[0]
         results = self.client.search(
             collection_name=config.QDRANT_COLLECTION,
@@ -50,6 +53,8 @@ class QdrantVectorStore:
                 "chunk_text": payload["chunk_text"],
                 "filename": payload["filename"],
                 "chunk_id": payload["chunk_id"],
+                "page": payload.get("page"),
+                "total_pages": payload.get("total_pages"),
                 "source_ref": payload.get("source_ref")
             })
         return context_chunks 
